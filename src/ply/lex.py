@@ -39,6 +39,7 @@ import types
 import copy
 import os
 import inspect
+from typing import Optional, Union
 
 # This tuple contains acceptable string types
 StringTypes = (str, bytes)
@@ -55,6 +56,14 @@ class LexError(Exception):
 
 # Token class.  This class is used to represent the tokens produced.
 class LexToken(object):
+    def __init__(self):
+        self.type: str = ''
+        self.value: str = ''
+        self.lineno: int = 0
+        self.lexpos: int = 0
+        self.lexer: Optional[Lexer] = None
+        self.type: str = ''
+        
     def __repr__(self):
         return f'LexToken({self.type},{self.value!r},{self.lineno},{self.lexpos})'
 
@@ -93,31 +102,31 @@ class PlyLogger(object):
 
 class Lexer:
     def __init__(self):
-        self.lexre = None             # Master regular expression. This is a list of
-                                      # tuples (re, findex) where re is a compiled
-                                      # regular expression and findex is a list
-                                      # mapping regex group numbers to rules
-        self.lexretext = None         # Current regular expression strings
-        self.lexstatere = {}          # Dictionary mapping lexer states to master regexs
-        self.lexstateretext = {}      # Dictionary mapping lexer states to regex strings
-        self.lexstaterenames = {}     # Dictionary mapping lexer states to symbol names
-        self.lexstate = 'INITIAL'     # Current lexer state
-        self.lexstatestack = []       # Stack of lexer states
-        self.lexstateinfo = None      # State information
-        self.lexstateignore = {}      # Dictionary of ignored characters for each state
-        self.lexstateerrorf = {}      # Dictionary of error functions for each state
-        self.lexstateeoff = {}        # Dictionary of eof functions for each state
-        self.lexreflags = 0           # Optional re compile flags
-        self.lexdata = None           # Actual input data (as a string)
-        self.lexpos = 0               # Current position in input text
-        self.lexlen = 0               # Length of the input text
-        self.lexerrorf = None         # Error rule (if any)
-        self.lexeoff = None           # EOF rule (if any)
-        self.lextokens = None         # List of valid tokens
-        self.lexignore = ''           # Ignored characters
-        self.lexliterals = ''         # Literal characters that can be passed through
-        self.lexmodule = None         # Module
-        self.lineno = 1               # Current line number
+        self.lexre: list[tuple[         # Master regular expression. This is a list of
+            re.Pattern,                 # tuples (re, findex) where re is a compiled
+            list[Union[None,            # regular expression and findex is a list
+                tuple[function,str]]]]] # mapping regex group numbers to rules    
+        self.lexretext = None           # Current regular expression strings
+        self.lexstatere = {}            # Dictionary mapping lexer states to master regexs
+        self.lexstateretext = {}        # Dictionary mapping lexer states to regex strings
+        self.lexstaterenames = {}       # Dictionary mapping lexer states to symbol names
+        self.lexstate = 'INITIAL'       # Current lexer state
+        self.lexstatestack = []         # Stack of lexer states
+        self.lexstateinfo = None        # State information
+        self.lexstateignore = {}        # Dictionary of ignored characters for each state
+        self.lexstateerrorf = {}        # Dictionary of error functions for each state
+        self.lexstateeoff = {}          # Dictionary of eof functions for each state
+        self.lexreflags = 0             # Optional re compile flags
+        self.lexdata: str = ''          # Actual input data (as a string)
+        self.lexpos = 0                 # Current position in input text
+        self.lexlen = 0                 # Length of the input text
+        self.lexerrorf = None           # Error rule (if any)
+        self.lexeoff = None             # EOF rule (if any)
+        self.lextokens = None           # List of valid tokens
+        self.lexignore = ''             # Ignored characters
+        self.lexliterals = ''           # Literal characters that can be passed through
+        self.lexmodule = None           # Module
+        self.lineno = 1                 # Current line number
 
     def clone(self, object=None):
         c = copy.copy(self)
