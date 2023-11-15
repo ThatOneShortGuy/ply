@@ -232,6 +232,8 @@ class LRParser:
         self.errorfunc = errorf
         self.set_defaulted_states()
         self.errorok = True
+        self.errors: list = []
+        self.warnings: list = []
 
     def errok(self):
         self.errorok = True
